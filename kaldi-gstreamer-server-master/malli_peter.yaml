@@ -1,0 +1,46 @@
+# KALDI PETER
+use-nnet2: True
+decoder:
+    nnet-mode: 3
+    use-threaded-decoder: False
+    model: /l/asr/kaldi_peter/final.mdl
+    word-syms: /l/asr/kaldi_peter/words.txt
+    fst: /l/asr/kaldi_peter/HCLG.fst
+    mfcc-config: /l/asr/kaldi_peter/mfcc_hires.conf
+    ivector-extraction-config: /l/asr/kaldi_peter/ivector_extractor.conf
+    max-active: 10000
+    beam: 10.0
+    lattice-beam: 6.0
+    acoustic-scale: 1.0
+    do-endpointing : true
+    endpoint-silence-phones : "1:2:3:4:5:6:7:8:9:10"
+    traceback-period-in-secs: 1.0
+    chunk-length-in-secs: 0.25
+    num-nbest: 10
+    frame-subsampling-factor: 3
+out-dir: tmp
+
+use-vad: False
+silence-timeout: 15
+
+# Just a sample post-processor th post-processor that appends "." to the hypothesis
+#post-processor: perl -C7 -npe 'BEGIN {use IO::Handle; STDOUT->autoflush(1);} s/\+ \+//g; s/\+//g;'
+
+# A sample full post processor that add a confidence score to 1-best hyp and deletes other n-best hyps
+full-post-processor: ./sample_full_post_processor.py
+
+logging:
+    version : 1
+    disable_existing_loggers: False
+    formatters:
+        simpleFormater:
+            format: '%(asctime)s - %(levelname)7s: %(name)10s: %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        console:
+            class: logging.StreamHandler
+            formatter: simpleFormater
+            level: DEBUG
+    root:
+        level: DEBUG
+        handlers: [console]

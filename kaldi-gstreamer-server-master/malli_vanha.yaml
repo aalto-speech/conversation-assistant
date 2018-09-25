@@ -1,0 +1,45 @@
+use-nnet2: True
+decoder:
+    # All the properties nested here correspond to the kaldinnet2onlinedecoder GStreamer plugin properties.
+    # Use gst-inspect-1.0 ./libgstkaldionline2.so kaldinnet2onlinedecoder to discover the available properties
+    use-threaded-decoder:  true
+    model : /l/asr/malli_vanha/final.mdl
+    word-syms : /l/asr/malli_vanha/words.txt
+    fst : /l/asr/malli_vanha/graph_finnish_morph_5gram/HCLG.fst
+    mfcc-config : /l/asr/malli_vanha/conf/mfcc.conf
+    ivector-extraction-config : /l/asr/malli_vanha/conf/ivector_extractor.conf
+    max-active: 10000
+    beam: 10.0
+    lattice-beam: 6.0
+    acoustic-scale: 0.083
+    do-endpointing : true
+    endpoint-silence-phones : "1:2:3:4:5:6:7:8:9:10"
+    traceback-period-in-secs: 0.25
+    chunk-length-in-secs: 0.25
+    num-nbest: 10
+out-dir: tmp
+
+use-vad: False
+silence-timeout: 10
+
+# Just a sample post-processor that appends "." to the hypothesis
+post-processor: perl -C7 -npe 'BEGIN {use IO::Handle; STDOUT->autoflush(1);} s/\+ \+//g; s/\+//g;'
+
+# A sample full post processor that add a confidence score to 1-best hyp and deletes other n-best hyps
+full-post-processor: ./sample_full_post_processor.py
+
+logging:
+    version : 1
+    disable_existing_loggers: False
+    formatters:
+        simpleFormater:
+            format: '%(asctime)s - %(levelname)7s: %(name)10s: %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        console:
+            class: logging.StreamHandler
+            formatter: simpleFormater
+            level: DEBUG
+    root:
+        level: DEBUG
+        handlers: [console]
